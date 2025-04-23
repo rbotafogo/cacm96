@@ -1,0 +1,796 @@
+\documentclass[twocolumn,10pt]{article}
+\usepackage{epsf,verbatim} %,mystyle}
+
+\setlength{\oddsidemargin}{-0.1in}	% 1 (real) inch for right margin
+\setlength{\evensidemargin}{-0.1in}	% 1 (real) inch for left margin
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.5in}
+\setlength{\topmargin}{-0.45in}
+\renewcommand{\textfraction}{.4}  % fraction of page for text
+\renewcommand{\floatpagefraction}{.8} % fraction of float page to be no text
+
+
+\title{Navigating in Hyperspace: A Structure Based Toolbox}
+
+\author{Ehud Rivlin\thanks{Department of Computer Science \&
+Human-Computer Interaction Laboratory,
+University of Maryland,
+College Park, MD 20742-3411}\ \thanks{e-mail: ehud@cs.umd.edu}
+\and 
+Rodrigo Botafogo\thanks{C\&C Information Technology Research
+Laboratories, NEC Corporation 4-1-1, Miyazaki, Miyamae-Ku, Kawasaki,
+Kanagawa 216, Japan, botafogo\%joke.cl.nec.co.jp@uunet.uu.net} 
+\and 
+Ben Shneiderman$^*$\thanks{Send correspondence to Ben Shneiderman,
+ben@cs.umd.edu}}
+
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\begin{abstract}
+
+Analyzing the structure of a hypertext database can give useful
+information to the traveler in hyperspace. We present a preliminary
+collection of structural tools for users of hypertext systems. These
+tools can suggest answers to questions like: Where am I? How can I
+choose and get to my destination? What else is in my current
+neighborhood? etc.  Structure is imposed on the hypertext by using two
+processes: hierarchisation and cluster identification.  Several
+metrics are presented and used in the above processes for locating
+landmarks and getting global information on the hypertext structure.
+The structural analysis is integrated with previous attempts to reduce
+the users' disorientation while navigating the hyperspace. An
+integration with fisheye views and tree-maps is presented.
+
+\end{abstract}
+
+\section{Introduction}
+\paragraph{}
+
+As more books and other documents become available in electronic form,
+the use of hypertext 
+systems is becoming more common. But as the size of hypertext databases
+grows the ``lost in hyperspace'' problem may limit
+efficient and meaningful usage of hypertext systems~\cite{nie90}.
+Good solutions to the problem need to be holistic ~\cite{nor}; encompassing
+navigation, planning, annotation etc.
+
+We concentrate on the navigational aspects of the problem from a
+structural point of view and propose a set of tools that can help
+hypertext users reduce the cognitive load of navigation. 
+Nielsen~\cite{nie90} describes the user's disorientation while
+navigating as ``one of the major usability problems with hypertext''.
+Our tools can suggest answers to questions like: Where am
+I?\footnote{In~\cite{nie90} Nielsen quotes previous work where 56
+precent of the readers agreed (fully or partly) with the statment {\em
+I was often confused about ``where I was''}.} How do I get to any
+destination? What can be seen from where I am? etc. These tools are
+based on a structural analysis of the hypertext. The analysis, and the
+answers we get, reflect the input that we are using - the structure.
+We can not get more than what a structural analysis can give. The
+results can be strengthened if the analysis were extended to include
+textual and stylistic dimensions as well. This natural extension is
+beyond the scope of this paper. The results presented can be
+integrated nicely with previous solutions to the problem, like the
+ones that are based on improved user interfaces, multiple
+windows~\cite{mar89}; or maps~\cite{nie90}.
+
+In this paper the word ``hypertext'' is used to indicate 
+hypertext systems where nodes (cards, articles, documents, ...)
+and links are untyped, and where the hypertext
+can be represented by a directed graph\footnote{Most of the hypertext systems have a backup function that
+gives the user the ability to go back to the last node that was visited.
+This option changes the hypertext from a directed to undirected graph.
+Although this fact is important from a user interface point of view, 
+an analysis of the hypertext as a directed graph
+(without taking into account the backup option) reveals some properties
+of the structure.}.
+This paper describes results working with 3 different hypertexts
+created in Hyperties\footnote{Hyperties is a hypertext system developed by the Human 
+Computer Interaction Laboratory, now distributed and improved by 
+Cognetics Corporation, Princeton
+Junction, NJ.}.
+
+Section 2 introduces some concepts and metrics used for our
+analysis\footnote{Most of them were introduced in~\cite{bot90}.}.
+Section 3 presents some possible answers to the question: Where am
+I? The answers are based on the ability to find hierarchies in 
+the hypertext, as well as the ability to create aggregates based
+on graph theoretic algorithms. 
+Section 4 describes the use of different metrics in giving 
+users some notion of the hyperspace structure. For this
+purpose we also show how to integrate the structural analysis
+with previous work such as tree-maps and fisheye views.
+Section 5 points out the next move, namely, how to plan a path.
+ 
+
+
+\section{Concepts and metrics}
+\subsection*{The converted distance matrix}
+\paragraph{}
+A matrix that has as its entries the distances of every node ($n$ nodes
+in the hypertext) 
+to every other
+node is called the {\em distance matrix} of a graph. Let M be the distance
+matrix of the graph.
+The {\em converted distance matrix} is defined as follows:
+\[ C_{ij} = \left\{ \begin{array}{ll}
+                      M_{ij} & \mbox{$if M_{ij} \neq \infty$,}     \\
+                      K      & \mbox{otherwise}
+                    \end{array}
+            \right.
+\]
+Where K is a finite constant (the conversion constant). Typically K = n.
+
+\subsection*{The converted and the relative out and in centrality metrics}
+\paragraph{}
+The converted out distance (COD) for a node is the sum of all entries
+in row {\em i} in the converted distance matrix (C)
+\[ COD_{i} = \sum_{j} C_{ij} \]
+The converted distance (CD) of a hypertext is given by the sum of all
+entries in the converted distance matrix
+\[ CD = \sum_{i} \sum_{j} C_{ij} \]
+The COD is a good indication of the centrality of a node within a given
+hypertext. The need for normalization leads to the definition of
+the {\em relative out centrality} (ROC)
+\[ ROC_{i} = CD / COD_{i} \]
+
+A high ROC indicates a node that can easily access other
+nodes (high out centrality). Hence, the higher the ROC of a node 
+the more central it is.
+In a similar manner we can define the converted in distance (CID) for a node
+{\em i} as the sum of all entries in the column {\em i} in the converted 
+distance matrix (C)
+\[ CID_{i} = \sum_{j} C_{ji} \]
+The {\em relative in centrality} (RIC) is defined as:
+\[ RIC_{i} = CD / CID_{i} \]
+A high RIC indicates a node that is easily accessible (high in centrality).
+
+\begin{figure}
+\vspace*{8cm}
+\caption [10pt] {Graph with its converted distance matrix and the 
+associated metrics.}
+\label{fig:roc}
+\end{figure}
+
+Figure~\ref{fig:roc} shows a graph with the associated converted 
+distance matrix and
+its COD, ROC, CID, RIC. The value of K was chosen to be the number of nodes
+in the hypertext\footnote{The higher the value of K, the more central is the
+requirement that a node needs to reach {\bf all} the other nodes in order to
+have high ROC. See~\cite{bot90}.}.
+Node $c$ has the highest ROC and intuitively we see that this is 
+the most central node in the graph. 
+
+\section{Where am I? Revealing the structure}
+\paragraph{}
+A possible way to localize a user in a hypertext is to impose a
+structure on the hypertext, and to identify the user's location within
+that structure. A natural structure is a hierarchy, and some systems
+like KMS require a hierarchical structure~\cite{kms}. The role of
+hierarchy formation in reading is presented in~\cite{cha87,van83}. 
+In~\cite{bot90} we proposed an algorithm for hierarchisation of
+hypertexts. The hierarchisation process is a two phase algorithm: first
+a root is identified and then hierarchical and cross-reference links
+are distinguished.
+
+A good candidate for a root is a node with a high ROC. Intuitively this is a 
+node that can access a large number of nodes and the distance from it to 
+other nodes is small. In order for the algorithm to give meaningful results
+a ``noise removal'' process should precede the ROC computation. In this 
+process we remove index nodes, i.e. nodes that points to a very large portion
+of the nodes in the hypertext\footnote{If we define $\alpha$ to be the mean of the outdegrees of the nodes
+in the hypertext, an index node is defined to be a node whose outdegree is 
+greater than $\alpha$ plus some predefined threshold. In order to create a
+``cleaner'' structure we can take out reference nodes as well. Reference
+nodes are in a certain way the converse of index nodes, and are defined 
+similarly on the indegree, see~\cite{bot90}.}.
+
+\begin{figure}
+\vspace*{8cm}
+\caption [10pt] { Hierarchisation of a graph.}
+\label{fig:hier}
+\end{figure}
+
+The differentiation between hierarchical and cross-reference links is done
+with a variation of breadth first search trying to maintain nodes as close to
+the root as possible. Figure~\ref{fig:hier} shows a graph and its 
+hierarchisation using 
+node $c$ as the root. Hierarchical links are represented with normal lines, 
+while cross-reference links are represented with dashed-lines. Note that a 
+node which has two parents from the same level appears twice, i.e. node $f$.
+In this case redundant subtrees were created. This situation raises the option
+for two semantic interpretations for node $f$: one as part of the subtree
+headed by node $a$, the other as part of the subtree headed by $e$.
+
+Once a hierarchy has been found it is important to show it to the user
+in a reasonable way. One option is to display the entire generated
+tree.  This option might not be practical for a hypertext with a large
+number of nodes (this is of course a function of the linearity of the
+tree as well).  Another option might be a fisheye based~\cite{fur86}
+presentation.  This presentation is based on the observation that
+humans usually represent their own neighborhood with great detail, yet
+only major landmarks further away. The importance of a node (the a
+priori interest) can be taken to be the distance from the root. This
+option is discussed in the next section.
+
+\begin{figure}
+\vspace*{7cm} 
+\caption [10pt] { Asking: Where am I? being at the node ``CMSC 412''. 
+Hierarchisation of the CMSC hypertext. Only 
+clusters on the path from the root are presented.}
+\label{fig:cmsc412}
+\end{figure}
+
+We applied the hierarchisation algorithm to the CMSC hypertext.  CMSC
+is a hypertext with 106 nodes and 402 links which describes the
+computer science department at the University of Maryland. The
+hypertext contains a description of the facilities at the department,
+biographies of the faculty members, details about the undergraduate
+and the graduate programs as well as a description of the courses
+given at the department.  In running the algorithm we identified three
+index nodes (using as a threshold three times the standard deviation,
+which gave 18 nodes above the threshold) and removed them.  The node
+having highest ROC was the ``Introduction'' (ROC = 1838).  The second
+highest ROC was 1000 and from there on the ROC droped significantly,
+with the 10{\em th} highest ROC equal to 400.  This reflects the fact
+that CMSC is a well structured hypertext, with a clear node as the
+root. Some other hypertexts that we looked at did not have this
+feature. GOVA\footnote{GOVA stands for Guide to Opportunities in
+Volunteer Archaeology. It is a museum application by the Smithsonian. 
+The hypertext contains 222 nodes and 1609 links and is highly
+interconnected.  In this application users would use the hypertext to
+find places around the world where they are interested in becoming
+volunteer archaeologist. Using a touchscreen they were be able to
+select in maps a region of the world or even a particular city in
+which they were interested. Once the place was selected the user would
+then read a text explaining the price, best time to go, etc. The
+system was not limited to only those operations, users had at their
+fingertips information about the sites: period of history, geographic
+information and others that were all linked forming a network of
+information.}~\cite{pla} for example, is a hypertext which contains
+information for users who want to become volunteer archaeologists. It
+contains information about sites, archaeology in general,
+accommodations and so on. The hypertext is a collaborative work of
+several writers, who did not have a consistent point of view. This
+resulted in small differences between the candidates for the root
+without any dominant node.  In CMSC, on the other hand, there is a
+coherent structure aimed to present the department. This fact is
+reflected in a single clear candidate for the root.
+
+Figure~\ref{fig:cmsc412} shows the result of asking: ``Where am I?''
+being at the node ``CMSC 412 - Operating Systems''. This node
+describes the advanced undergraduate course (or low level graduate) in
+operating systems. Choosing the node ``Introduction'' to be the root,
+the algorithm found this node as one that belongs to the ``Graduate
+Courses'' cluster. This is one of the eight nodes directly connected
+to the root.  The clusters varied from laboratory facilities to fields
+of research, University of Maryland, graduate courses etc.  The
+``Graduate Courses'' cluster (or chapter) has 6 subclusters, each
+representing a different group of courses from a different domain.
+The node ``CMSC 412 - Operating Systems'' was under the subcluster
+``Computer Systems Courses''. Thus, the user will get the following
+answer: You are in the subcluster of ``Computer System Courses'', that
+is a subcluster of the ``Graduate Courses'' cluster which is connected
+to the root (``Introduction'').
+
+An ambiguous answer is possible when querying: ``Where am I?'' being
+in the node ``Rosenfeld, Azriel''. According to the algorithm the node
+is included in two subclusters\footnote{This is exactly the case as
+with node $f$ in figure 2} , namely ``Research in Computer Vision''
+and ``Center for Automation Research'', which in turn are connected
+respectively to the clusters ``Fields of Research'' and
+``Collaboration with Industry''.  This situation is natural. Prof. 
+Rosenfeld is working in the area of computer vision which is one of
+the fields of research in the computer science department. On the
+other hand Prof.  Rosenfeld is the head of the Center for Automation
+Research, which has connection to industry. These two views are
+equally justified, and both will be presented to the user
+(figure~\ref{fig:rosenfeld}) This kind of ambiguity can be solved by
+using the user's history as a guide.  This, of course, can be the
+user's choice.
+
+
+\begin{figure}
+\vspace*{8cm}
+\caption [10pt] { Asking: Where am I? being at the node ``Rosenfeld Azriel''.
+Two views that are equally justified.}
+\label{fig:rosenfeld}
+\end{figure}
+
+For comparison we present an overview map of this node
+(figure~\ref{fig:overview}) The map presents all the neighbors of this
+node at distance one, and most of the neighbors at distance two.  Even
+in a relatively small scale hypertext the number of the possible links
+in a small environment\footnote{Looking at a node and its immediate
+neighborhood, defined in~\cite{nie90} as local map} can be quite high
+(and confusing).
+
+\begin{figure}
+\vspace*{8cm}
+\caption [10pt] { The node ``Rosenfeld Azriel'', its distance-1
+neighborhood and some nodes at distance 2.}
+\label{fig:overview}
+\end{figure}
+
+It is interesting to note that picking different nodes as a root gives
+a different view of the same hypertext. For example, running the
+algorithm on GOVA resulted in ten candidates for a root.  Different
+perspectives resulted from taking a different root.  For example
+taking ``Archaeological projects'' to be the root we find the node
+``Caesarea's harbor'' under the cluster ``Harbor archaeology'' which
+is connected to the root. When taking ``Introduction'' to be the root
+we find the node ``Caesarea's harbor'' under the cluster ``Caesarea''
+which is connected to the root. This view results from the Smithsonian
+presentation being centered around excavation in Caesarea and being
+called ``King Herod's Dream''. Viewing the hypertext from the
+``Introduction'', Caesarea was a cluster, a central part in the
+presentation. Viewing from ``Archaeological projects'' Caesarea was
+only another site and that is why it was found on level 5 (and of
+course wasn't a main cluster).
+
+\begin{figure}
+\vspace*{8cm}
+\caption [10pt] {Two different answers being at the 
+node ``Caesara's harbor''.}
+\label{fig:caesara}
+\end{figure}
+
+\subsection*{Using aggregation}
+\paragraph{}
+Aggregation is an operation that clusters related objects and forms a
+higher level object. Halasz~\cite{hal88} identifies aggregation as a
+composition mechanism. A composition mechanism is a way of dealing with
+a set of nodes and links as a single object. In a hypertext database the
+presence of a link between two articles indicates that there is a 
+semantic relation between those two articles. The semantic relationship
+between the nodes is reflected in the structure.   
+ 
+In~\cite{bot91} two graph theoretic algorithms that identify semantic
+clusters were presented\footnote{A semantic cluster of a hypertext is a set of nodes and links
+that are a subgraph of the hypertext graph, and the compactness of the 
+subgraph is higher than the compactness (defined in section 4) 
+of the whole graph. This is
+a set of nodes appropriate for aggregation. See~\cite{bot91}.}
+. The algorithms are based on finding the
+biconnected components\footnote{A graph G is biconnected if it is connected and has no 
+articulation points. A node $a$ of a connected graph is an 
+articulation point if the subgraph obtained by deleting $a$ and
+all the edges incident on $a$ is no longer connected. As a result
+biconnected components in a graph have the property that there are
+at least two paths between any two nodes in the component.}
+and strongly connected components\footnote{The same definition but for directed graphs.} 
+of a graph. First outgoing edges from index nodes and incoming
+edges to reference nodes are removed, and then a reduced graph is built 
+by breaking the graph into its biconnected components. The algorithms are
+recursive in the sense that every bicomponent found is treated as an 
+independent graph. These algorithms give users the option to break the 
+hypertext
+into semantic clusters. Users can display the reduced graph and see 
+their location.
+
+In figure~\ref{fig:reducedg} part of the reduced graph of CMSC is
+presented, after the first run of the biconnected components algorithm.
+The algorithm divided the graph into a central core and some subparts.
+A similar partition (central, relatively large, core) resulted when the
+algorithm was run on the HHO hypertext\footnote{``HyperText Hands-On!'' is the first
+electronic book commercially published. The hypertext covers
+concepts of hypertext, 
+typical hypertext applications, and currently available authoring
+systems. The hypertext also covers design and implementation issues such
+as user interface, performance and networks. The hypertext has 243 nodes
+and 803 links.}
+(see figure~\ref{fig:hho}). Users
+being, for example, in the node ``Howard, Elman'' can see some
+different clusters that constitute the hypertext, and  their semantic
+meaning (a pleasing outcome that can not be always guaranteed). 
+A further application of the process to
+the cluster that contains the node ``Howard, Elman'' gives more
+information. Users can see that the nodes ``O'Leary, D.'' and
+``Stewart, G. W.'' create an appropriate subcluster
+because these three faculty members constitute the numerical analysis
+group. This is an interesting piece of semantic information
+that is given by the structure. The breaking of the hypertext
+into components, and being able to see their connections,
+ is important, and might give users a notion
+of their position by using the different clusters as landmarks.
+
+\begin{figure}
+\vspace*{9cm}
+\caption [10pt] { Part of the reduced graph of CMSC. The user is in the node
+ ``Howard, Elman'', in the ``Research in numerical analysis'' cluster.
+The cluster is a reduced graph that contains two nodes and a subcluster.}
+\label{fig:reducedg}
+\end{figure}
+
+\section{Where am I? Looking around}
+\paragraph{}
+The previous section presented tools to help users toq localize themselves 
+in the hyperspace. This section presents tools to give 
+users useful information about their environment.
+The information is gained by defining and analysing metrics on the
+hypertext. We use global as well as local metrics.
+Global metrics are concerned with the
+hypertext as a whole, while node, or local, metrics focus on properties
+of individual nodes.
+
+\subsection*{Local metrics}
+\paragraph{}
+A simple metric that can give users a useful hint about their position
+is depth. By definition, the depth of a node in a hypertext is its distance
+from the root. The hierarchisation algorithm imposes a tree structure
+on the hypertext and by doing so gives the depth information.
+
+Two inter-related local metrics are the {\em status} and {\em
+contrastatus} (first defined in~\cite{har59}). The status is the sum
+of the finite entries in the $i^{th}$ row of the distance matrix, and
+the contrastatus is the sum of the finite entries in the $j^{th}$
+column of the distance matrix.  When a node has a very low status, for
+example, it means that it cannot reach many of the other nodes in the
+hypertext. When a node has very low contrastatus it means that it
+cannot be reached by many nodes.  The {\em prestige} of a node is
+define to be the difference between its status and contrastatus. Note
+that the prestige might have negative values too.
+Figure~\ref{fig:prest} presents the graph from figure~\ref{fig:roc}
+with the values for the different metrics. Nodes that reach all the
+other nodes in the hypertext have status identical to their COD
+metric.  There is a difference between the ROC and the status (and the
+prestige).  Node $c$, for example, has the highest ROC value, but node
+$e$ is more ``prestigious'' (its subordinates are further away).
+
+\begin{figure}
+\vspace*{8cm}
+\caption [10pt] { The graph from figure 1 with the status, contrastatus,
+and the prestige.}
+\label{fig:prest}
+\end{figure}
+
+The local metrics can be used as guidance for users. Readers might
+find out that after wandering about they are located only two nodes
+away from the root (depth 3). Being in a node with low status and high
+contrastatus might suggest the use of aggregation instead of
+hierarchisation as in the following example.  In ``Hypertext
+Hands-On!'' (HHO)~\cite{shn89} one part of the hypertext consists of a
+hyper-novel, which can only be accessed through an article that
+introduces the novel. Since the nodes in the hyper-novel can only
+reach a very limited subset of the hypertext they have low status and
+since they can only be reached through the hyper-novel introduction
+they have a high contrastatus. A biconnected component analysis
+reveals the user's position in a separate cluster.
+Figure~\ref{fig:hho} shows part of the reduced graph of HHO after the
+first iteration of the algorithm. For users who are browsing through
+the ``Interactive fiction'' cluster, the analysis gives a crude notion
+of their whereabout in hyperspace\footnote{It is interesting to
+note that for some nodes in the interactive fiction cluster the
+hierarchisation algorithm gave depth 9. This is an example were a
+local metric (depth) suggests using aggregation rather than
+hierarchisation for a crude global view.}.  We were pleased to find
+that the automated metrics revealed the intended structure created by
+the authors.
+
+\begin{figure}
+\vspace*{8cm}
+\caption [10pt] {Part of the reduced graph of HHO. 
+The location of the user is 
+indicated by an arrow.}
+\label{fig:hho}
+\end{figure}
+
+
+\subsection*{Global metrics}
+\paragraph{}
+We define two metrics, {\em compactness} and {\em stratum}, that indicate how
+complex the hypertext is.
+
+The compactness varies between 0 and 1, and it is 0 when the hypertext
+is completely disconnected and 1 when it is completely connected.
+Formally
+\[
+CP = \frac {Max - \sum_{i} \sum_{j} C_{ij}} {Max - Min}
+\]
+Where Max and Min are respectively the maximum and minimum value the converted 
+distance can assume. $C_{ij}$ is the converted distance between nodes {\em i}
+and {\em j}\footnote{ The maximum value of the converted distance is given by
+$Max = (n^{2} - n) C $  where n is the number of nodes in the hypertext
+and C is the maximum value an entry in the converted distance matrix can assume.
+Usually C=K, where K is the conversion constant.
+The minimum is given by $Min = (n^{2} - n) $ , since the minimum distance
+between two nodes is 1.}.
+
+Stratum is a measure that indicates if there exists a ``natural'' order 
+for reading the hypertext. Maximum stratum is achieved in a linear
+hypertext. If the stratum is zero the hypertext has no
+hierarchy. Basically
+the stratum metric indicates how much of a linear ordering there
+is in the hypertext.
+We define the {\em linear absolute prestige} (LAP) of a hypertext  with $n$
+nodes to be the absolute prestige of a linear hypertext with $ n$ 
+nodes. The stratum is define as the absolute prestige of the hypertext
+divided by the linear absolute prestige. For example, in figure
+the absolute prestige. The linear absolute
+prestige is given by (odd number of nodes, see~\cite{bot90}):
+$n^{3} - n / 4$ , that is 30, and so the stratum is $ 14/30 = 0.47$.
+
+Note that stratum and the compactness are not independent
+measures. for example, if the compactness is equal to 1 (the
+hypertext is totally connected) its stratum is 0.
+
+Readers can use the above metrics to get useful information
+about the nature of the hyperspace. The stratum, for example,
+is a measure for the organization of the hypertext. In~\cite{bot90},
+three hypertext databases were checked: CMSC, HHO and GOVA and
+their stratum compared. Though HHO has more nodes than GOVA its
+stratum is five times as large (0.054 to 0.011). This reflects the 
+fact that HHO is
+a well structured hypertext, where GOVA is not. Similar information
+can be derived from compactness measurements. These global metrics
+are useful when the hyperspace is broken into biconnected components
+(see previous section). In that case we can get information on the nature
+of the different clusters.
+
+\subsection*{Looking around using tree maps}
+\paragraph{}
+Being able to impose a hierarchical order on the hypertext graph
+creates the option to use it for presentation. 
+Limited display space makes the use of traditional node and link
+diagrams impractical for large trees.
+A novel method for the visualization
+of hierarchically structured information called a tree-map is 
+presented in~\cite{shne90,bb}. The tree-map visualization
+method maps hierarchical information to a rectangular 2-D display
+in a space-filling manner; 100 \% of the available display window space
+is utilized.
+Tree-maps partition the
+display space into a collection of rectangular bounding boxes
+representing the tree structure. The drawing of nodes within their bounding
+boxes is entirely dependent on the content of the nodes.
+Since the display size is fixed,
+the drawing size of each node varies inversely with the size of the tree.
+The efficient use of space allows large hierarchies to be displayed.
+
+In~\cite{bb} the weight assigned to each node is used to determine 
+its bounding box. The weight may represent a single domain property,
+or a combination of properties. Some optional properties that can be used
+for weight representation are size, the number of
+siblings, ROC,  or prestige. We can display the whole
+hypertext to the user, or only portion of it (current position and
+down, or some pre-defined environment). In figure~\ref{fig:treemap} 
+a tree-map of 
+CMSC hypertext is presented.
+As a weight measure the total number of siblings from a
+node down (or the
+size of the tree below the node) was picked.
+The user's location can be displayed by a directing arrow.
+Users can get the general position in the hypertext and some
+notion on how they can proceed. The information is more 
+meaningful after index and reference nodes are removed.
+\begin{figure}
+\vspace*{9.5cm}
+\caption [10pt] { A tree-map of the CMSC hypertext after the index and 
+reference nodes were removed. The black rectangle presents the
+position of the user (``research in computer systems''). The node
+on the right side, that has 31 children, ``undergraduate courses''. }
+\label{fig:treemap}
+\end{figure}
+
+
+\subsection*{Using the structure when looking around - fisheye views}
+\paragraph{}
+As was mentioned before, as the hypertext becomes larger, it is impractical
+to display the entire tree. A possible solution is to use fisheye views.
+Furnas~\cite{fur86} based his model on the observation that humans usually
+represent their own neighborhood with great detail, yet only major landmarks
+further away. Furnas suggests a ``degree of interest'' (DOI) function 
+which assigns
+a value to each node in accordance to the degree with which the user is 
+interested in seeing that node. The DOI function for node $ x$ given that
+the reader is in node $ y$ is defined as
+\[ DOI_{fisheye} (x|y) = API(x) - D(x,y)
+\]
+where $ API(x)$ is the global a priori importance of $ x$ and $ D(x,y)$
+is the distance between $ x$ and $ y$. The fisheye view is created 
+after picking a threshold, and displaying only nodes with $DOI$ greater
+than the threshold.
+
+Several options exist for choosing our $ API$. A natural selection
+might be the distance from the root. This choice gives (according to
+the threshold value) the main parts of the tree. Another option can 
+be to take the ROC metric and use it as $ API$. As we mentioned 
+before we limited  our analysis to structural analysis only.
+Better results can be achieved
+by combining the structural analysis with a stylistic and context
+analysis. This is another natural place to use semantic information
+in determining the $ API$. Another option is to use the user behavior - like 
+the number of times a node was visited. 
+
+In figure~\ref{fig:fisheye} we 
+present two fisheye views, one with the user in the 
+node ``Shneiderman, Ben'' in
+the CMSC hypertext, and the other being at the node ``Hyperties''.
+The views were created 
+using the prestige metric as the $ API$
+function. Note the difference between the two views,
+although the points of view are from neighboring nodes
+. The user can change the threshold value to get
+a more/less detailed view. Another option is to change the negative
+weight that is given to the distance. Doubling the punishment on
+being far will result in showing only nodes with very high $ API$
+values, and the immediate neighborhood. 
+
+\begin{figure}
+\vspace*{8.75cm}
+\caption [10pt] {A fisheye view of the CMSC hypertext being in 
+nodes ``Shneiderman, Ben'' and ``Hyperties''.}
+\label{fig:fisheye}
+\end{figure}
+
+\section{How do I get to any destination?}
+\paragraph{} 
+Knowing where we are is a first step toward a natural goal - getting
+there. Getting there at once (jumping via an index to the target node)
+is not a hard to achieve goal. Most hypertext systems give the option
+to move directly to a certain node (via search, or an index). Assuming
+that the user has some purpose in mind while wandering about in the
+hyperspace we see the path that the user takes toward the goal to be
+as important as getting there.  *** might put here the learning from
+the paper *** A structural analysis of the hypertext can suggest some
+alternatives in planning this path.\footnote{This direction suits
+nicely in the learning support environment~\cite{ham} under
+orienteering as well as rambling. Hammond and Allinson present the
+need for tools which ``not only support passive navigation around the
+information but also permit learners to structure the information and
+the learning activities in accordance with their requirements.''  On
+top of the structure imposed on the hypertyext the system can offer
+the novices a meaningful (from structural point of view) path between
+two nodes.}
+
+Our toolbox gives users the option to impose hierarchical structure
+on the hypertext. Users can pick the target node on the hierarchy
+and get two kinds of paths: the shortest (cross reference links are 
+allowed), or ``follow the tree'' path (shortest on the tree, no cross
+reference links are allowed). (Do we need an Example here?).
+Being able to present semantic clusters, the toolbox gives users
+the option to plan a path that will bring structure into consideration
+(for example bypass them). Figure~\ref{fig:hho} shows part of the reduced 
+graph of the HHO hypertext, when users are somewhere in the ``Interactive
+fiction'' cluster. For users who consider to go directly and
+browse through the ``Travel guide''  section, the reduced graph can 
+help in making that decision. The separation might suggest that there
+is not much ``to lose'' by bypassing the core cluster.
+ 
+Another option that users have is to plan a path 
+through landmarks. The landmarks can be viewed using a fisheye
+presentation. Another option is to pick the landmarks by
+checking some structural metrics
+like prestige, and plan the path through these nodes.
+To carry out this option the system has to be able to suggest a
+path to users that is constrained by the landmarks the users
+have picked (This can be done by a collection of local shortest
+paths). 
+
+Structural analysis is only one dimension to consider while
+planning a path. Adding constraints from other dimensions
+(content, stylistic, etc) makes the mission of helping
+users to plan a path a complex job. This part is left as
+a direction for future research.
+
+\section{Conclusions}
+\paragraph{}
+Analyzing the structure of a hypertext database can give useful
+information to the traveler in hyperspace. We presented
+a preliminary collection of structural tools (processes and metrics) for users
+of hypertext systems. These tools can suggest answers to
+questions like: Where am I? How do I get to any destination?
+What can be seen from here looking around? etc. 
+The crude positioning in the hyperspace was based on
+two processes: hierarchisation and cluster identification.
+Several metrics were presented and used in the above processes
+as well as for locating landmarks and getting global information
+on the hypertext structure (compactness, stratum, etc).
+It should be emphasized that the analysis, and the
+answers we get, reflect the input that we are using - the structure.
+We can not get more than what a structural analysis can give. 
+The results can be much stronger if the analysis were
+based on the textual and the stylistic dimensions as well. This 
+extension as well as the multi-constraints path planning is a direction
+for future research.
+
+
+\begin{thebibliography}{99}
+
+\bibitem{kms}
+  Akscyn, R. M., McCracken, D. L. \& Yoder, E. A. (1988).
+  KMS: a distributed hypermedia system for managing knowledge in
+  organization.
+  {\em Communications of the ACM}, 31 (7), 820-835.
+
+\bibitem{bot90}
+  Botafogo, R. A., Rivlin, E., \& Shneiderman, B. Structural
+  analysis of hypertext: Identifying hierarchies and useful metrics.
+  {\em ACM Trans. on Information Systems}. (to appear).
+
+\bibitem{bot91}
+  Botafogo, R. A., \& Shneiderman, B. (1991).
+  Identifying aggregates in hypertext structures.
+  {\em Proceedings of the Hypertext 91 Conference}, 
+  Available from ACM, New York, NY.
+
+\bibitem{cha87}
+  Charney, D. (1987). Comprehending non-linear text: The role of discourse
+  cues and reading strategies.
+  {\em Proceeding of the Hypertext 87 Conference}
+  (pp. 109-120),
+  Chapel Hill, North Carolina.
+
+\bibitem{fur86}
+  Furnas, G. W. (1986). Generalized fisheye views.
+  {\em Proceeding of the CHI 86 Conference},
+  (pp. 16-23). Available from ACM, New York, NY.
+
+\bibitem{hal88}
+  Halasz, F. G. (1988). Reflections on NoteCards: Seven issues
+  for the next generation of hypermedia systems. 
+  {\em Communications of the ACM}, 31 (7), 836-852.
+
+\bibitem{ham}
+  Hammond, N. \& Allinson, L. (1988).
+  Travels around a learning support environment: rambling,
+  orienteering or touring?
+  {\em Proceeding of the CHI 88 Conference},
+  (pp. 269-273). Available from ACM, New York, NY.
+
+\bibitem{har59}
+  Harary, F. (1959). Status and contrastatus. {\em Sociometry},
+  22, 23-43.
+
+\bibitem{bb}
+  Johnson, B. \& Shneiderman, B. (1991).
+  Tree-Maps: A space-filling approach to the visualization of 
+  hierarchical information structures.
+  {\em Proc. IEEE Visualization 91 Conference}.
+
+\bibitem{mar89}
+  Marshall, C. C. (1989). Guided tours and on-line presentations: How
+  authors make existing hypertext intelligible for readers.
+  {\em Proceedings of the Hypertext 89 Conference}, 15-26. Pittsburgh,
+  Pennsylvania.
+
+\bibitem{nie90}
+  Nielsen, J. (1990). The art of navigating through hypertext.
+  {\em Communications of the ACM}, 33 (3), 296-310.
+
+\bibitem{nor}
+  Norman, K. L. (1991). Personal communication. 
+
+\bibitem{pla}
+  Plaisant, C. (1991).
+  Guide to opportunities in volunteer archaeology. Case study
+  on the use of hypertext system in a museum exhibit.
+  in {\em Hypertext/Hypermedia Handbook}
+  Berk, E. \& Devlin, J. editors.
+  San Diego, CA. McGraw-Hill Publishing.
+
+\bibitem{shn89}
+  Shneiderman, B., \& Kearsley, G. (1989).
+  {\em Hypertext Hands-On!}. Reeding, MA. Addison-Wesley Publishing.
+
+\bibitem{shne90}
+  Shneiderman, B. (1992).
+  Tree visualization with Tree-Maps: A 2-d space-filling approach.
+  {\em ACM Transactions on Graphics}, January 1992.
+
+\bibitem{van83}
+  van Dijk, T., \& Kintsch, W. (1983). {\em Strategies of discourse 
+  comprehension.}
+  New York: Academic Press.
+
+
+
+\end{thebibliography}
+\end{document}
+
+
+
